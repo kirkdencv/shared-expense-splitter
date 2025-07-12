@@ -3,13 +3,13 @@ require('dotenv').config();
 const  express= require('express');
 const mongoose = require('mongoose');
 
+mongoose.set('strictQuery',false);
 
 const app = express();
 
 app.get('/', (req, res) =>{         //test
     res.json({text: 'testing'})
 });
-
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
