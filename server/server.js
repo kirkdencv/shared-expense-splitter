@@ -15,9 +15,6 @@ app.get('/', (req, res) => {
     res.json({ message: 'Expense Splitter API is running!' });
 });
 
-// Authentication routes
-app.use('/api/auth', require('./routes/auth'));
-
 const PORT = process.env.PORT || 3000;
 
 const start = async () => {
