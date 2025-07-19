@@ -1,3 +1,22 @@
+## 📁 Folder Structure
+
+```
+client/
+  src/
+    assets/         # Images and static files
+    pages/          # Page-level components
+    App.jsx         # Main app component
+    main.jsx        # Entry point
+    index.css       # Tailwind directives
+  index.html        # Main HTML file
+  package.json      # Project dependencies
+  tailwind.config.js
+  postcss.config.cjs
+  vite.config.js
+```
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
