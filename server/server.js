@@ -12,8 +12,15 @@ app.use(express.json());
 
 // Test route
 app.get('/', (req, res) => {
-    res.json({ message: 'Expense Splitter API is running!' });
+    const mongoose = require('mongoose');
+    res.json({ 
+        message: 'Expense Splitter API is running!',
+        database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+    });
 });
+
+// Authentication routes
+app.use('/api/auth', require('./routes/auth'));
 
 const PORT = process.env.PORT || 3000;
 
@@ -21,6 +28,7 @@ const start = async () => {
     try {
         await connectDB(process.env.MONGO_URI);
         console.log('✅ MongoDB Atlas Connected Successfully!');
+        
         app.listen(PORT, () => {
             console.log(`🚀 Server is listening at port ${PORT}...`);
         });

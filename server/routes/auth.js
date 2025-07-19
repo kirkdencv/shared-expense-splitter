@@ -4,22 +4,40 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-// Register new user
+// Register user
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
     
+    console.log('📝 Registration attempt:', { name, email }); // Debug log
+    
+    // Validate input
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
     // Create new user
-    const user = new User({ name, email, password });
+    const user = new User({ 
+      name: name.trim(), 
+      email: email.toLowerCase(), 
+      password 
+    });
+    
     await user.save();
 
-    // Create JWT token
+    console.log('✅ User created successfully:', user._id); // Debug log
+
+    // Generate JWT token
     const token = jwt.sign(
       { userId: user._id }, 
       process.env.JWT_SECRET, 
@@ -35,8 +53,10 @@ router.post('/register', async (req, res) => {
         email: user.email 
       }
     });
+    
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('❌ Registration error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -45,24 +65,33 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log('🔐 Login attempt for:', email); // Debug log
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
     // Check password
-    const isPasswordCorrect = await user.comparePassword(password);
-    if (!isPasswordCorrect) {
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    // Create JWT token
+    // Generate JWT token
     const token = jwt.sign(
       { userId: user._id }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );
+
+    console.log('✅ Login successful for:', user.email); // Debug log
 
     res.json({
       message: 'Login successful',
@@ -73,8 +102,32 @@ router.post('/login', async (req, res) => {
         email: user.email 
       }
     });
+    
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('❌ Login error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get current user (protected route)
+router.get('/me', async (req, res) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId).select('-password');
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
   }
 });
 
