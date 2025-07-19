@@ -145,4 +145,23 @@ build/
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
+# Express/MongoDB specific
+uploads/
+temp/
+*.log
 
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Database dumps
+*.sql
+*.sqlite
+*.db
