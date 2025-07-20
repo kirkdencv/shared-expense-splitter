@@ -46,7 +46,7 @@ function testAPI(method, path, data = null) {
 }
 
 async function runTests() {
-  console.log('🧪 Starting API Tests...\n');
+  console.log('Starting API endpoint tests...\n');
 
   try {
     // Test 1: Health check
@@ -54,7 +54,7 @@ async function runTests() {
     const healthResult = await testAPI('GET', '/');
     console.log('   Status:', healthResult.status);
     console.log('   Response:', healthResult.data);
-    console.log('   ✅ Health check passed\n');
+    console.log('   Health check completed successfully\n');
 
     // Test 2: Register user
     console.log('2. Testing user registration...');
@@ -66,9 +66,9 @@ async function runTests() {
     console.log('   Status:', registerResult.status);
     console.log('   Response:', registerResult.data);
     if (registerResult.status === 201) {
-      console.log('   ✅ Registration passed\n');
+      console.log('   Registration test passed\n');
     } else {
-      console.log('   ❌ Registration failed\n');
+      console.log('   Registration test failed\n');
     }
 
     // Test 3: Login user
@@ -80,16 +80,16 @@ async function runTests() {
     console.log('   Status:', loginResult.status);
     console.log('   Response:', loginResult.data);
     if (loginResult.status === 200) {
-      console.log('   ✅ Login passed\n');
+      console.log('   Login test passed\n');
     } else {
-      console.log('   ❌ Login failed\n');
+      console.log('   Login test failed\n');
     }
 
-    console.log('🎉 API Tests completed!');
+    console.log('API endpoint testing completed successfully');
 
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
-    console.log('\n💡 Make sure your server is running with: npm start');
+    console.error('Test execution failed:', error.message);
+    console.log('\nNote: Make sure your server is running with: npm start');
   }
 }
 
