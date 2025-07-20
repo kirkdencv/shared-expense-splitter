@@ -56,30 +56,70 @@ const registerUser = async (req, res) => {
       }
 }
 
-// login or getuser?
+// Actual login function
 const login = async (req, res) => {
-      try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+  try {
+    const { email, password } = req.body;
     
-    if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
+    console.log('🔐 Login attempt:', { email }); // Debug log
+    
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select('-password');
-    
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(401).json({ error: 'Invalid token' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    res.json({ user });
+    // Check password
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    console.log('✅ Login successful:', user._id); // Debug log
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email 
+      }
+    });
+    
   } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
+    console.error('❌ Login error:', error);
+    res.status(500).json({ error: error.message });
   }
 }
 
-const getUser = (req, res) => {
-    // None
+// Get current user (protected route)
+const getUser = async (req, res) => {
+  try {
+    // User is already attached by authMiddleware
+    res.json({ 
+      user: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email
+      }
+    });
+  } catch (error) {
+    console.error('❌ Get user error:', error);
+    res.status(500).json({ error: error.message });
+  }
 }
 
 module.exports = {

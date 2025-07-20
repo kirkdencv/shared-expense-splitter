@@ -1,0 +1,49 @@
+### Shared Expense Splitter API Tests
+### Make sure your server is running first: npm start
+
+@baseUrl = http://localhost:3000
+
+### Test server health
+GET {{baseUrl}}/
+
+### Register a new user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+### Login with the user
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+### Get current user (replace YOUR_TOKEN_HERE with actual token from login)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Register another user for testing
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "password": "password123"
+}
+
+### Test with invalid credentials
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "wrong@example.com",
+  "password": "wrongpassword"
+}
