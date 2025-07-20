@@ -165,3 +165,113 @@ Desktop.ini
 *.sql
 *.sqlite
 *.db
+
+# Express/MongoDB specific
+uploads/
+temp/
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Database dumps
+*.sql
+*.sqlite
+*.db
+
+# Test files (optional - uncomment if you don't want to track test files)
+# test-*.json
+# *.test.js
+# coverage/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Runtime and cache
+.npm
+.yarn
+.pnpm
+.cache/
+.parcel-cache/
+
+# Development tools
+.nyc_output
+.eslintcache
+.stylelintcache
+
+# Build artifacts
+*.tsbuildinfo
+*.buildinfo
+
+# Environment-specific
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files (if you don't want to track them)
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Documentation builds (if using doc generators)
+docs/build/
+api-docs/
+
+# Monitoring and logs
+newrelic_agent.log
+lerna-debug.log*
+
+# Security and keys (extra protection)
+*.pem
+*.key
+*.cert
+*.crt
+private/
+secrets/
+
+# Large files that shouldn't be in git
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+
+# Development databases
+*.sqlite3
+*.db3
+data/
+database/
+db-data/
