@@ -5,7 +5,7 @@ const registerUser = async (req, res) => {
       try {
         const { name, email, password } = req.body;
         
-        console.log('📝 Registration attempt:', { name, email }); // Debug log
+        console.log('Processing user registration request for:', email);
         
         // Validate input
         if (!name || !email || !password) {
@@ -31,7 +31,7 @@ const registerUser = async (req, res) => {
         
         await user.save();
     
-        console.log('✅ User created successfully:', user._id); // Debug log
+        console.log('User account created successfully. User ID:', user._id);
     
         // Generate JWT token
         const token = jwt.sign(
@@ -51,7 +51,7 @@ const registerUser = async (req, res) => {
         });
         
       } catch (error) {
-        console.error('❌ Registration error:', error);
+        console.error('Registration failed:', error.message);
         res.status(500).json({ error: error.message });
       }
 }
@@ -61,7 +61,7 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    console.log('🔐 Login attempt:', { email }); // Debug log
+    console.log('Processing login request for:', email);
     
     // Validate input
     if (!email || !password) {
@@ -80,7 +80,7 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    console.log('✅ Login successful:', user._id); // Debug log
+    console.log('User authentication successful. User ID:', user._id);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -100,7 +100,7 @@ const login = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Login error:', error);
+    console.error('Login failed:', error.message);
     res.status(500).json({ error: error.message });
   }
 }
@@ -117,7 +117,7 @@ const getUser = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('❌ Get user error:', error);
+    console.error('Failed to retrieve user information:', error.message);
     res.status(500).json({ error: error.message });
   }
 }
