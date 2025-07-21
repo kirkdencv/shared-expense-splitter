@@ -1,11 +1,15 @@
 const express = require('express');
 const authController = require('../controllers/authController');
-const authMiddleware = require('../middleware/auth');
+
+// Middlewares
+const authMiddleware = require('../middleware/authMiddleware');
+const validateRegister = require('../middleware/validateRegister');
+const validateLogin = require('../middleware/validateLogin')
 
 const router = express.Router();
 
-router.post('/register', authController.registerUser)
-router.post('/login', authController.login)
+router.post('/register', validateRegister, authController.registerUser)
+router.post('/login', validateLogin, authController.login)
 
 // Get current user (protected route)
 router.get('/me', authMiddleware, authController.getUser);
