@@ -1,43 +1,34 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const JWT_EXPIRY = '7d';
+
 const registerUser = async (req, res) => {
       try {
         const { name, email, password } = req.body;
-        
         console.log('Processing user registration request for:', email);
-        
-        // Validate input
-        if (!name || !email || !password) {
-          return res.status(400).json({ error: 'Name, email and password are required' });
-        }
-    
-        if (password.length < 6) {
-          return res.status(400).json({ error: 'Password must be at least 6 characters' });
-        }
         
         // Check if user already exists
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
           return res.status(400).json({ error: 'User already exists with this email' });
         }
-    
+
         // Create new user
         const user = new User({ 
           name: name.trim(), 
           email: email.toLowerCase(), 
-          password 
+          password
         });
         
         await user.save();
-    
         console.log('User account created successfully. User ID:', user._id);
     
         // Generate JWT token
         const token = jwt.sign(
           { userId: user._id }, 
           process.env.JWT_SECRET, 
-          { expiresIn: '7d' }
+          { expiresIn: JWT_EXPIRY }
         );
     
         res.status(201).json({
@@ -60,13 +51,8 @@ const registerUser = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    
     console.log('Processing login request for:', email);
     
-    // Validate input
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
-    }
 
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
