@@ -18,7 +18,6 @@ const cors = require('cors');
 // Route imports
 const testRoutes = require('./routes/testRoutes');
 const authRoutes = require('./routes/authRoutes');
-const groupRoutes = require('./routes/groupRoutes');
 
 const app = express();
 
@@ -29,7 +28,6 @@ app.use(express.json());
 
 app.use('/', testRoutes)
 app.use('/api/auth', authRoutes);
-app.use('/api/groups', groupRoutes);
 
 const PORT = process.env.PORT || 3000;
 
