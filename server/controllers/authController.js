@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const JWT_EXPIRY = '7d';
-const saltRounds = 10;
 
 const registerUser = async (req, res) => {
       try {
