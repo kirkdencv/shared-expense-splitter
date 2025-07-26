@@ -19,6 +19,7 @@ const cors = require('cors');
 const testRoutes = require('./routes/testRoutes');
 const authRoutes = require('./routes/authRoutes');
 const groupRoutes = require('./routes/groupRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(express.json());
 app.use('/', testRoutes)
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 const PORT = process.env.PORT || 3000;
 
