@@ -1,6 +1,7 @@
 const Expense = require('../models/Expense');
 const Group = require('../models/Group');
 const mongoose = require('mongoose')
+const { validateObjectId } = require('../utils/validate')
 
 const createExpenseService = async ({ description, amount, payer, participants, group }) => {
 
@@ -19,21 +20,13 @@ const createExpenseService = async ({ description, amount, payer, participants, 
         throw new Error("Participants must be a non-empty array");
     }
 
-    // Validate group
-    if (!mongoose.Types.ObjectId.isValid(group)) {
-        throw new Error("Invalid group ID");
-    }
 
-    // Validate payer
-    if (!mongoose.Types.ObjectId.isValid(payer)) {
-    throw new Error("Invalid payer ID");
-    }
+    validateObjectId(group, 'group')
+    validateObjectId(payer, 'payer')
 
     // Validate if each participants exists
     for (const p of participants) {
-    if (!mongoose.Types.ObjectId.isValid(p.user)) {
-        throw new Error("Invalid participant ID");
-    }
+    validateObjectId(p.user, 'participant')
     }
     const groupDoc = await Group.findById(group);
 
@@ -77,6 +70,32 @@ const createExpenseService = async ({ description, amount, payer, participants, 
     return expense;
 }
 
+
+const getUserExpenses = async () => {
+        const {
+            groupId,
+            payerId,
+            participantId,
+            startDate,
+            endDate,
+            minAmount,
+            maxAmount,
+            sortBy = 'createdAt'
+        } = req.query
+}
+
+const getExpensebyIdService = async ({ id }) => {
+
+        const expense = await Expense.findById(id)
+            .populate('payer', 'name email')
+            .populate('participants.user', 'name email')
+            .populate('group', 'name members')
+            .lean()
+        
+        return expense
+}
+
 module.exports = {
-    createExpenseService
+    createExpenseService,
+    getExpensebyIdService
 }

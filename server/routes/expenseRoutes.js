@@ -1,9 +1,12 @@
 const express = require('express');
-const expressController = require('../controllers/expenseController');
-const { route } = require('./testRoutes');
-
 const router = express.Router();
 
-router.post('/', expressController.createExpense)
+const expressController = require('../controllers/expenseController');
+const authMiddleware = require('../middleware/authMiddleware');
+
+
+
+router.post('/', authMiddleware, expressController.createExpense)
+router.get('/:id', authMiddleware, expressController.getExpenseById)
 
 module.exports = router;
