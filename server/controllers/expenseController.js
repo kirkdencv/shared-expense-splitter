@@ -27,7 +27,7 @@ const getExpenseById = async (req, res) => {
 
 const updateExpense = async (req, res) => {
     try {
-        const expense = await updateExpenseService(req.body, req.params)
+        const expense = await updateExpenseService(req.body, {id: req.params.id, userId: req.user.id})
         res.status(201).json(expense)
     } catch (err) {
         console.error('Error updating expense', err)

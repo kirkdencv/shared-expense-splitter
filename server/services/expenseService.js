@@ -95,15 +95,14 @@ const getExpensebyIdService = async ({ id }) => {
     return expense
 }
 
-const updateExpenseService = async ({ description, amount, payer, participants, group }, { id }) => {
+const updateExpenseService = async ({ description, amount, payer, participants, group }, { id, userId}) => {
 
     validateObjectId(id, "Expense")
-    console.log(payer)
-    validateObjectId(payer, "Payer")
+    validateObjectId(userId, "Payer")
 
     const expense = await Expense.findById(id)
     if (!expense) { throw new Error("Expense not found") }
-    if (payer.toString() !== expense.payer.toString()) {throw new Error("Only creator can update this expenses")}
+    if (userId.toString() !== expense.payer.toString()) {throw new Error("Only creator can update this expenses")}
 
     // Validation
     if (amount !== undefined) {
