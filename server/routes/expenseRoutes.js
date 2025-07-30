@@ -1,9 +1,17 @@
 const express = require('express');
-const expenseController = require('../controllers/expenseController');
-const { route } = require('./testRoutes');
 
 const router = express.Router();
 
+const expressController = require('../controllers/expenseController');
+const authMiddleware = require('../middleware/authMiddleware');
+
+const expenseController = require('../controllers/expenseController');
+const { route } = require('./testRoutes');
+
+router.post('/', authMiddleware, expressController.createExpense)
+router.get('/:id', authMiddleware, expressController.getExpenseById)
+router.put('/:id', authMiddleware, expressController.updateExpense)
+router.delete('/:id', authMiddleware, expressController.deleteExpense)
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Protect all expense routes

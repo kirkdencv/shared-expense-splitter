@@ -1,6 +1,7 @@
 const Expense = require('../models/Expense');
 const Group = require('../models/Group');
 const mongoose = require('mongoose')
+const { validateObjectId, validateParticipantsInGroup } = require('../utils/validate')
 
 const createExpenseService = async ({ description, amount, payer, participants, group }) => {
 
@@ -19,21 +20,12 @@ const createExpenseService = async ({ description, amount, payer, participants, 
         throw new Error("Participants must be a non-empty array");
     }
 
-    // Validate group
-    if (!mongoose.Types.ObjectId.isValid(group)) {
-        throw new Error("Invalid group ID");
-    }
-
-    // Validate payer
-    if (!mongoose.Types.ObjectId.isValid(payer)) {
-    throw new Error("Invalid payer ID");
-    }
+    validateObjectId(group, 'group')
+    validateObjectId(payer, 'payer')
 
     // Validate if each participants exists
     for (const p of participants) {
-    if (!mongoose.Types.ObjectId.isValid(p.user)) {
-        throw new Error("Invalid participant ID");
-    }
+    validateObjectId(p.user, 'participant')
     }
     const groupDoc = await Group.findById(group);
 
@@ -59,7 +51,6 @@ const createExpenseService = async ({ description, amount, payer, participants, 
     let totalShare = participants.reduce((acc, participant) => {
         return acc + Number(participant.share);
     }, 0)
-    console.log(totalShare)
 
     if (totalShare != amount) {
         throw new Error("Kulang")
@@ -77,6 +68,108 @@ const createExpenseService = async ({ description, amount, payer, participants, 
     return expense;
 }
 
+
+const getUserExpenses = async () => {
+        const {
+            groupId,
+            payerId,
+            participantId,
+            startDate,
+            endDate,
+            minAmount,
+            maxAmount,
+            sortBy = 'createdAt'
+        } = req.query
+}
+
+const getExpensebyIdService = async ({ id }) => {
+
+    validateObjectId(id, "Expense")
+
+    const expense = await Expense.findById(id)
+        .populate('payer', 'name email')
+        .populate('participants.user', 'name email')
+        .populate('group', 'name members')
+        .lean()
+    
+    return expense
+}
+
+const updateExpenseService = async ({ description, amount, payer, participants, group }, { id, userId}) => {
+
+    validateObjectId(id, "Expense")
+    validateObjectId(userId, "Payer")
+
+    const expense = await Expense.findById(id)
+    if (!expense) { throw new Error("Expense not found") }
+    if (userId.toString() !== expense.payer.toString()) {throw new Error("Only creator can update this expenses")}
+
+    // Validation
+    if (amount !== undefined) {
+        if (typeof amount !== "number" || amount <= 0) {
+            throw new Error("Amount must be a positive number")
+        }
+    }
+
+    if (description !== undefined) {
+        if (typeof description !== "string" || description.trim().length === 0) {
+            throw new Error("Description must be a non-empty string")
+        }
+    }
+
+    if (participants !== undefined) {
+        if (!Array.isArray(participants) || participants.length == 0) {
+            throw new Error("Participants must be a non-empty array")
+        }
+
+        participants.forEach((participant, index) => {
+            validateObjectId(participant.user, `Participant ${index}`)
+        })
+    }
+
+    if (group !== undefined) {
+        validateObjectId(group, "Group")
+    }
+
+    const groupObject = await Group.findById(group)
+    validateParticipantsInGroup(participants, groupObject)
+
+    const updateData = {}
+    updateData.description = description.trim()
+    updateData.amount = amount
+    updateData.payer = payer
+    updateData.participants = participants
+
+    const updatedExpense = await Expense.findByIdAndUpdate(id, updateData, {new: true, runValidators: true})
+        .populate('payer', 'name email')
+        .populate('participants.user', 'name email')
+        .populate('group', 'name members')
+    
+    return updatedExpense
+}
+
+const deleteExpenseService = async ({ id, userId }) =>  {
+
+    validateObjectId(userId, "User ID")
+    validateObjectId(id, "Expense")
+
+    const expense = await Expense.findById(id);
+    if (!expense) {throw new Error("Expense not found")}
+
+    if (expense.payer.toString() !== userId.toString()) {
+        throw new Error("Only the Expense Creator(Payer) can delete this expense")
+    }
+
+    await Expense.findByIdAndDelete(id)
+
+    return { message: "Expense deleted successfully", deletedExpenseId: id}
+}
+
+
+
 module.exports = {
-    createExpenseService
+    createExpenseService,
+    getExpensebyIdService,
+    updateExpenseService,
+    deleteExpenseService
 }
