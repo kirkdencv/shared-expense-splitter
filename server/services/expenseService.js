@@ -1,7 +1,7 @@
 const Expense = require('../models/Expense');
 const Group = require('../models/Group');
-const mongoose = require('mongoose')
-const { validateObjectId, validateParticipantsInGroup } = require('../utils/validate')
+const { validateObjectId, validateParticipantsInGroup } = require('../utils/validate');
+const AppError = require('../utils/appError');  
 
 const createExpenseService = async ({ description, amount, payer, participants, group }) => {
 
@@ -80,6 +80,8 @@ const getUserExpenses = async () => {
             maxAmount,
             sortBy = 'createdAt'
         } = req.query
+
+
 }
 
 const getExpensebyIdService = async ({ id }) => {
@@ -102,7 +104,8 @@ const updateExpenseService = async ({ description, amount, payer, participants, 
 
     const expense = await Expense.findById(id)
     if (!expense) { throw new Error("Expense not found") }
-    if (userId.toString() !== expense.payer.toString()) {throw new Error("Only creator can update this expenses")}
+
+    if (userId.toString() !== expense.payer.toString()) {throw new AppError("Only creator can update this expense", 403)}
 
     // Validation
     if (amount !== undefined) {
@@ -157,13 +160,14 @@ const deleteExpenseService = async ({ id, userId }) =>  {
     if (!expense) {throw new Error("Expense not found")}
 
     if (expense.payer.toString() !== userId.toString()) {
-        throw new Error("Only the Expense Creator(Payer) can delete this expense")
+        throw new AppError("Only creator can update this expense", 403)
     }
 
     await Expense.findByIdAndDelete(id)
 
     return { message: "Expense deleted successfully", deletedExpenseId: id}
 }
+
 
 
 
