@@ -75,7 +75,7 @@ const login = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.json({
+    return res.status(200).json({
       message: 'Login successful',
       token,
       user: { 
