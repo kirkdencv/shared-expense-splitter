@@ -94,8 +94,7 @@ const login = async (req, res) => {
 // Get current user (protected route)
 const getUser = async (req, res) => {
   try {
-    // User is already attached by authMiddleware
-    res.json({ 
+    res.json({
       user: {
         id: req.user._id,
         name: req.user.name,
@@ -106,10 +105,23 @@ const getUser = async (req, res) => {
     console.error('Failed to retrieve user information:', error.message);
     res.status(500).json({ error: error.message });
   }
-}
+}; 
+
+// Delete user by ID
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await User.findByIdAndDelete(id);
+    res.status(200).json({ message: "User deleted successfully", deletedUserId: id });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+// ...existing code cleaned above...
 
 module.exports = {
-    registerUser,
-    login,
-    getUser
+  registerUser,
+  login,
+  getUser,
+  deleteUser
 }

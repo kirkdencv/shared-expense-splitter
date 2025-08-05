@@ -13,5 +13,7 @@ router.post('/login', validateLogin, authController.login)
 
 // Get current user (protected route)
 router.get('/me', authMiddleware, authController.getUser);
+router.delete('/:id', authMiddleware, authController.deleteUser);
+
 
 module.exports = router;
