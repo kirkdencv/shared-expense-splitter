@@ -138,10 +138,21 @@ const updateExpenseService = async ({ description, amount, payer, participants, 
     validateParticipantsInGroup(participants, groupObject)
 
     const updateData = {}
-    updateData.description = description.trim()
-    updateData.amount = amount
-    updateData.payer = payer
-    updateData.participants = participants
+    if (description !== undefined) {
+        updateData.description = description.trim()
+    }
+    if (amount !== undefined) {
+        updateData.amount = amount
+    }
+    if (payer !== undefined) {
+        updateData.payer = payer
+    }
+    if (participants !== undefined) {
+        updateData.participants = participants
+    }
+    if (group !== undefined) {
+        updateData.group = group
+    }
 
     const updatedExpense = await Expense.findByIdAndUpdate(id, updateData, {new: true, runValidators: true})
         .populate('payer', 'name email')
@@ -160,7 +171,7 @@ const deleteExpenseService = async ({ id, userId }) =>  {
     if (!expense) {throw new Error("Expense not found")}
 
     if (expense.payer.toString() !== userId.toString()) {
-        throw new AppError("Only creator can update this expense", 403)
+        throw new AppError("Only creator can delete this expense", 403)
     }
 
     await Expense.findByIdAndDelete(id)
