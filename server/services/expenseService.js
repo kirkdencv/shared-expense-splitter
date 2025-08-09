@@ -33,6 +33,18 @@ const createExpenseService = async ({ description, amount, payer, participants, 
         throw new Error("Group does not exist")
     }
 
+    if (!groupDoc.createdBy) {
+        throw new Error("Group creator is not set");
+    }
+
+    console.log("groupDoc.createdBy:", groupDoc.createdBy);
+    console.log("payer:", payer);
+
+
+    if (!groupDoc.createdBy.equals(payer)) {
+        throw new AppError("Only the group creator can create expenses", 403);
+    }
+
     const isPayerInGroup = groupDoc.members.some(memberId => memberId.equals(payer))
 
     // Validate if participant is part of the group
