@@ -99,9 +99,6 @@ const getExpensebyIdService = async ({ id }) => {
 
 const updateExpenseService = async ({ description, amount, participants, group }, { id, userId}) => {
 
-    let updateGroup = false;
-    let updateParticipants = false;
-
     validateObjectId(id, "Expense")
     validateObjectId(userId, "Payer")
 
