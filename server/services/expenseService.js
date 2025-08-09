@@ -97,12 +97,16 @@ const getExpensebyIdService = async ({ id }) => {
     return expense
 }
 
-const updateExpenseService = async ({ description, amount, payer, participants, group }, { id, userId}) => {
+const updateExpenseService = async ({ description, amount, participants, group }, { id, userId}) => {
+
+    let updateGroup = false;
+    let updateParticipants = false;
 
     validateObjectId(id, "Expense")
     validateObjectId(userId, "Payer")
 
     const expense = await Expense.findById(id)
+    const updateData = {}
     if (!expense) { throw new Error("Expense not found") }
 
     if (userId.toString() !== expense.payer.toString()) {throw new AppError("Only creator can update this expense", 403)}
@@ -112,46 +116,42 @@ const updateExpenseService = async ({ description, amount, payer, participants, 
         if (typeof amount !== "number" || amount <= 0) {
             throw new Error("Amount must be a positive number")
         }
+        updateData.amount = amount
     }
 
     if (description !== undefined) {
         if (typeof description !== "string" || description.trim().length === 0) {
             throw new Error("Description must be a non-empty string")
         }
-    }
-
-    if (participants !== undefined) {
-        if (!Array.isArray(participants) || participants.length == 0) {
-            throw new Error("Participants must be a non-empty array")
-        }
-
-        participants.forEach((participant, index) => {
-            validateObjectId(participant.user, `Participant ${index}`)
-        })
-    }
-
-    if (group !== undefined) {
-        validateObjectId(group, "Group")
-    }
-
-    const groupObject = await Group.findById(group)
-    validateParticipantsInGroup(participants, groupObject)
-
-    const updateData = {}
-    if (description !== undefined) {
         updateData.description = description.trim()
     }
-    if (amount !== undefined) {
-        updateData.amount = amount
-    }
-    if (payer !== undefined) {
-        updateData.payer = payer
-    }
-    if (participants !== undefined) {
-        updateData.participants = participants
-    }
-    if (group !== undefined) {
-        updateData.group = group
+
+    if (group !== undefined || participants !== undefined) {
+
+        if (group !== undefined) {
+            validateObjectId(group, "Group");
+            updateData.group = group;
+        }   
+
+        const targetGroupId = group !== undefined ? group : expense.group;
+        const participantsToCheck = participants !== undefined ? participants : expense.participants;
+
+        // Check if participants array is valid
+        if (!Array.isArray(participantsToCheck) || participantsToCheck.length === 0) {
+            throw new AppError("Participants must be a non-empty array", 400);
+        }
+
+        // Check if the participants inside the array if valid objects
+        participantsToCheck.forEach((p, index) => {
+            validateObjectId(p.user, `Participant ${index}`);
+        })
+
+        // Check if the participants is part of the group
+        const currentGroupObject = await Group.findById(targetGroupId);
+        if (!currentGroupObject) throw new AppError("Group not found", 404);
+        validateParticipantsInGroup(participantsToCheck, currentGroupObject);
+
+        if (participants !== undefined) updateData.participants = participants;
     }
 
     const updatedExpense = await Expense.findByIdAndUpdate(id, updateData, {new: true, runValidators: true})
