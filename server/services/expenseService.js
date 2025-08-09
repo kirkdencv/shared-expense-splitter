@@ -1,7 +1,8 @@
 const Expense = require('../models/Expense');
 const Group = require('../models/Group');
 const { validateObjectId, validateParticipantsInGroup } = require('../utils/validate');
-const AppError = require('../utils/appError');  
+const AppError = require('../utils/appError');
+const mongoose = require('mongoose');
 
 const createExpenseService = async ({ description, amount, payer, participants, group }) => {
 
@@ -69,19 +70,28 @@ const createExpenseService = async ({ description, amount, payer, participants, 
 }
 
 
-const getUserExpenses = async () => {
-        const {
-            groupId,
-            payerId,
-            participantId,
-            startDate,
-            endDate,
-            minAmount,
-            maxAmount,
-            sortBy = 'createdAt'
-        } = req.query
+const getUserExpenseService = async (filters) => {
 
+    try {
 
+        let query = {};
+
+        if (filters.minAmount || filters.maxAmount) {
+            query.amount = {};
+            if (filters.minAmount) query.amount.$gt = Number(filters.minAmount);
+            if (filters.maxAmount) query.amount.$lt = Number(filters.maxAmount);
+        }
+
+        if (filters.participantId) {
+            const participantId = new mongoose.Types.ObjectId(filters.participantId)
+            query['participants.user'] = participantId
+        }
+
+        const expense = await Expense.find(query)
+        return expense;
+    } catch (err) {
+        throw new Error(`Error fetching expenses ${err.message}`)
+    }
 }
 
 const getExpensebyIdService = async ({ id }) => {
@@ -175,5 +185,6 @@ module.exports = {
     createExpenseService,
     getExpensebyIdService,
     updateExpenseService,
-    deleteExpenseService
+    deleteExpenseService,
+    getUserExpenseService
 }

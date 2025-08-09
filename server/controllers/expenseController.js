@@ -1,5 +1,5 @@
 const Expense = require('../models/Expense');
-const {createExpenseService, getExpensebyIdService, updateExpenseService, deleteExpenseService} = require('../services/expenseService');
+const {createExpenseService, getExpensebyIdService, updateExpenseService, deleteExpenseService, getUserExpenseService} = require('../services/expenseService');
 const AppError = require('../utils/appError');
 
 const createExpense = async (req, res) => {
@@ -12,8 +12,30 @@ const createExpense = async (req, res) => {
   }
 }
 
-// ala pa
+
 const getUserExpenses = async (req, res) => {
+
+    const filters = {
+        participantId,
+        dateCreated,
+        minAmount,
+        maxAmount
+    } = req.query
+
+    try {
+        const expense = await getUserExpenseService(filters)
+        res.status(201).json(expense);
+    } catch (err) {
+        console.error('Error fetching user Expense:', err.message);
+        res.status(400).json({ error: err.message });
+    }
+
+    // Find expenses by participants included
+
+    // Find expenses by amount
+
+    // Find expenses by date created
+
 }
 
 const getExpenseById = async (req, res) => {
